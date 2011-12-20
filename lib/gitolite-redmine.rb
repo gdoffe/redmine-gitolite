@@ -4,6 +4,8 @@ require 'net/ssh'
 require 'tmpdir'
 
 module GitoliteRedmine
+	include Redmine::I18n
+
 	def self.update_repositories(projects)
 		projects = (projects.is_a?(Array) ? projects : [projects])
 	
@@ -42,8 +44,29 @@ module GitoliteRedmine
 			projects.select{|p| p.repository.is_a?(Repository::Git)}.each do |project|
 				# fetch users
 				users = project.member_principals.map(&:user).compact.uniq
-				write_users = users.select{ |user| user.allowed_to?( :commit_access, project ) }
 				read_users = users.select{ |user| user.allowed_to?( :view_changesets, project ) && !user.allowed_to?( :commit_access, project ) }
+
+				# Managers
+                                role = Role.find(:first, :conditions => {:name => l(:default_role_manager)})
+				manager_users = project.users_by_role[role]
+				if manager_users
+				  manager_users = manager_users.select{ |user| user.allowed_to?( :commit_access, project ) }
+				end
+
+				# Developers
+                                role = Role.find(:first, :conditions => {:name => l(:default_role_developer)})
+				developer_users = project.users_by_role[role]
+				if developer_users
+				  developer_users = developer_users.select{ |user| user.allowed_to?( :commit_access, project ) }
+				end
+
+				# Reporters
+                                role = Role.find(:first, :conditions => {:name => l(:default_role_reporter)})
+				reporter_users = project.users_by_role[role]
+				if reporter_users
+				  reporter_users = reporter_users.select{ |user| user.allowed_to?( :view_changesets, project ) }
+				end
+
 				# write key files
 				users.map{|u| u.gitolite_public_keys.active}.flatten.compact.uniq.each do |key|
           parts = key.key.split
@@ -75,17 +98,60 @@ module GitoliteRedmine
           ga_repo.config.add_repo(conf)
         end
         
-        write = write_users.map{|usr| usr.login.underscore}.sort
-        
         read = read_users.map{|usr| usr.login.underscore}.sort
         read << "daemon" if User.anonymous.allowed_to?(:view_changesets, project)
         read << "gitweb" if User.anonymous.allowed_to?(:view_gitweb, project)
         
         read << "redmine"
-
+        
         permissions = {}
-        permissions["RW+"] = {"" => write} unless write.empty?
-        permissions["R"] = {"" => read} unless read.empty?
+	permissions["R"] = {}
+	permissions["RW"] = {}
+	permissions["RW+"] = {}
+
+	permissions["R"][""] = []
+
+	permissions["RW"][""] = []
+	permissions["RW"][project.repository.branch_pattern] = []
+	permissions["RW"]["ref/tags/" + project.repository.tag_pattern] = []
+
+	permissions["RW+"][""] = []
+	permissions["RW+"]["personal/USER/"] = []
+
+        permissions["R"][""] += read unless read.empty?
+
+	if manager_users
+	  manager = manager_users.map{|usr| usr.login.underscore}.sort
+	  permissions["RW"][""] += manager unless manager.empty?
+	  permissions["RW+"]["personal/USER/"] += manager unless manager.empty?
+	end
+
+	if developer_users
+	  developer = developer_users.map{|usr| usr.login.underscore}.sort
+	  permissions["R"][""] += developer unless developer.empty?
+	  permissions["RW"][project.repository.branch_pattern] += developer unless developer.empty?
+	  permissions["RW"]["ref/tags/" + project.repository.tag_pattern] += developer unless developer.empty?
+	  permissions["RW+"]["personal/USER/"] += developer unless developer.empty?
+	end
+
+	if reporter_users
+	  reporter = reporter_users.map{|usr| usr.login.underscore}.sort
+	  permissions["R"][""] += reporter unless reporter.empty?
+	  permissions["RW"][project.repository.branch_pattern] += reporter unless reporter.empty?
+	  permissions["RW"]["ref/tags/" + project.repository.tag_pattern] += reporter unless reporter.empty?
+	  permissions["RW+"]["personal/USER/"] += reporter unless reporter.empty?
+	end
+
+	if permissions["R"][""].empty?; permissions["R"].delete(""); end
+
+	if permissions["RW"][""].empty?; permissions["RW"].delete(""); end
+	if permissions["RW"][project.repository.branch_pattern].empty?; permissions["RW"].delete(project.repository.branch_pattern); end
+	if permissions["RW"]["ref/tags/" + project.repository.tag_pattern].empty?; permissions["RW"].delete("ref/tags/" + project.repository.tag_pattern); end
+
+
+	if permissions["RW+"][""].empty?; permissions["RW+"].delete(""); end
+	if permissions["RW+"]["personal/USER/"].empty?; permissions["RW+"].delete("personal/USER/"); end
+
         conf.permissions = [permissions]
 			end
       
@@ -99,5 +165,4 @@ module GitoliteRedmine
 		end
 		@recursionCheck = false
 	end
-	
 end

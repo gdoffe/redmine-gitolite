@@ -1,0 +1,22 @@
+'fr':
+  label_public_keys: Clés publiques
+  label_public_key_new: Nouvelle clé publique
+  label_gitolite_url: URL gitolite
+  label_gitolite_identity_file: Gitolite identity file
+  label_base_path: Chemin de base
+  label_developer_base_urls: URL(s) de base pour les développeurs
+  label_read_only_base_urls: URL(s) de base pour accès en lecture seul
+  note_gitolite_repository_branch_pattern: Pattern de branche pour les développeurs au format perl
+  note_gitolite_repository_tag_pattern: Pattern de tag pour les développeurs au format perl
+  field_public_key: Clé
+  field_gitolite_repository_branch_pattern: Pattern de branche
+  field_gitolite_repository_tag_pattern: Pattern de tag
+  notice_public_key_updated: Clé publique mise à jour avec succès
+  notice_public_key_added: Clé publique ajoutée avec succès
+  
+  label_key_cannot_be_changed_please_create_new_key: 'La clé ne peut plus être modifiée. Cependant vous pouvez la désactiver et en créer une nouvelle.'
+
+  activerecord:
+    errors:
+      messages:
+        'may not be changed': 'ne devrait pas être modifié'

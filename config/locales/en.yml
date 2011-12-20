@@ -6,7 +6,11 @@
   label_base_path: Base path
   label_developer_base_urls: Developer base URL(s)
   label_read_only_base_urls: Read-only base URL(s)
-  field_public_key: Key 
+  note_gitolite_repository_branch_pattern: Developper repository branch pattern. Perl format
+  note_gitolite_repository_tag_pattern: Developper repository tag pattern. Perl format
+  field_public_key: Key
+  field_gitolite_repository_branch_pattern: Branch pattern
+  field_gitolite_repository_tag_pattern: Tag pattern
   notice_public_key_updated: Public key was successfully updated.
   notice_public_key_added: Public key was successfully added.
   

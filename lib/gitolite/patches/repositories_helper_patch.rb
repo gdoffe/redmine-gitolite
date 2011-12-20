@@ -2,7 +2,20 @@ require_dependency 'repositories_helper'
 module GitoliteRedmine
   module Patches
     module RepositoriesHelperPatch
-      def git_field_tags_with_disabled_configuration(form, repository) ; '' ; end
+      def git_field_tags_with_disabled_configuration(form, repository)
+    	content_tag('p', form.text_field(
+                       :branch_pattern, :label => l(:field_gitolite_repository_branch_pattern),
+                       :size => 60, :required => false,
+                       :disabled => false
+                         ) +
+                       '<br />' + l(:note_gitolite_repository_branch_pattern)) +
+    	content_tag('p', form.text_field(
+                       :tag_pattern, :label => l(:field_gitolite_repository_tag_pattern),
+                       :size => 60, :required => false,
+                       :disabled => false
+                         ) +
+                       '<br />' + l(:note_gitolite_repository_tag_pattern))
+      end
       
       def self.included(base)
         base.class_eval do

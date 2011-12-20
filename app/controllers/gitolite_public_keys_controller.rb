@@ -10,8 +10,8 @@ class GitolitePublicKeysController < ApplicationController
       GitolitePublicKey::STATUS_ACTIVE
     elsif params[:status].blank?
         nil
-    else 
-      params[:status].to_i != 0
+    else
+	params[:status].to_i
     end
     c = ARCondition.new(@status ? ["active=?", @status] : nil)
 
@@ -28,10 +28,10 @@ class GitolitePublicKeysController < ApplicationController
   def update
     if params[:public_key][:active]
       status = params[:public_key].delete :active
-      if status == "true"
-        @gitolite_public_key.active = true
-      elsif status == "false"
-        @gitolite_public_key.active = false
+      if status != "0"
+        @gitolite_public_key.active = 1
+      else
+        @gitolite_public_key.active = 0
       end
     end
 
