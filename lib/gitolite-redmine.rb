@@ -103,7 +103,7 @@ module GitoliteRedmine
         read << "gitweb" if User.anonymous.allowed_to?(:view_gitweb, project)
         
         read << "redmine"
-        
+
         permissions = {}
 	permissions["R"] = {}
 	permissions["RW"] = {}
@@ -112,8 +112,12 @@ module GitoliteRedmine
 	permissions["R"][""] = []
 
 	permissions["RW"][""] = []
-	permissions["RW"][project.repository.branch_pattern] = []
-	permissions["RW"]["ref/tags/" + project.repository.tag_pattern] = []
+        if project.repository.branch_pattern and project.repository.branch_pattern != ""
+	    permissions["RW"][project.repository.branch_pattern] = []
+        end
+        if project.repository.tag_pattern and project.repository.tag_pattern != ""
+	    permissions["RW"]["ref/tags/" + project.repository.tag_pattern] = []
+        end
 
 	permissions["RW+"][""] = []
 	permissions["RW+"]["personal/USER/"] = []
@@ -129,26 +133,37 @@ module GitoliteRedmine
 	if developer_users
 	  developer = developer_users.map{|usr| usr.login.underscore}.sort
 	  permissions["R"][""] += developer unless developer.empty?
-	  permissions["RW"][project.repository.branch_pattern] += developer unless developer.empty?
-	  permissions["RW"]["ref/tags/" + project.repository.tag_pattern] += developer unless developer.empty?
+          if project.repository.branch_pattern and project.repository.branch_pattern != ""
+	    permissions["RW"][project.repository.branch_pattern] += developer unless developer.empty?
+          end
+          if project.repository.tag_pattern and project.repository.tag_pattern != ""
+	    permissions["RW"]["ref/tags/" + project.repository.tag_pattern] += developer unless developer.empty?
+          end
 	  permissions["RW+"]["personal/USER/"] += developer unless developer.empty?
 	end
 
 	if reporter_users
 	  reporter = reporter_users.map{|usr| usr.login.underscore}.sort
 	  permissions["R"][""] += reporter unless reporter.empty?
-	  permissions["RW"][project.repository.branch_pattern] += reporter unless reporter.empty?
-	  permissions["RW"]["ref/tags/" + project.repository.tag_pattern] += reporter unless reporter.empty?
+          if project.repository.branch_pattern and project.repository.branch_pattern != ""
+	    permissions["RW"][project.repository.branch_pattern] += reporter unless reporter.empty?
+          end
+          if project.repository.tag_pattern and project.repository.tag_pattern != ""
+	    permissions["RW"]["ref/tags/" + project.repository.tag_pattern] += reporter unless reporter.empty?
+          end
 	  permissions["RW+"]["personal/USER/"] += reporter unless reporter.empty?
 	end
 
+        if project.repository.branch_pattern and project.repository.branch_pattern != ""
+	  if permissions["RW"][project.repository.branch_pattern].empty?; permissions["RW"].delete(project.repository.branch_pattern); end
+        end
+        if project.repository.tag_pattern and project.repository.tag_pattern != ""
+	  if permissions["RW"]["ref/tags/" + project.repository.tag_pattern].empty?; permissions["RW"].delete("ref/tags/" + project.repository.tag_pattern); end
+        end
+
+
 	if permissions["R"][""].empty?; permissions["R"].delete(""); end
-
 	if permissions["RW"][""].empty?; permissions["RW"].delete(""); end
-	if permissions["RW"][project.repository.branch_pattern].empty?; permissions["RW"].delete(project.repository.branch_pattern); end
-	if permissions["RW"]["ref/tags/" + project.repository.tag_pattern].empty?; permissions["RW"].delete("ref/tags/" + project.repository.tag_pattern); end
-
-
 	if permissions["RW+"][""].empty?; permissions["RW+"].delete(""); end
 	if permissions["RW+"]["personal/USER/"].empty?; permissions["RW+"].delete("personal/USER/"); end
 
