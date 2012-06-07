@@ -23,7 +23,7 @@
       <% @project.repositories.select{|r| r.is_a?(Repository::Git)}.each do |repo|  %>
         <% baseUrlStr.lines.each do |url| %>
           <% result = url.gsub("%{name}", repo.identifier) -%>
-          <li><%= link_to result, result %></li>
+          <li><%= link_to result, "#" +result %></li>
         <% end %>
       <% end %>
     </ul>
