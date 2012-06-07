@@ -15,7 +15,7 @@ class GitolitePublicKeysController < ApplicationController
     end
     
     scope = @user.gitolite_public_keys
-    scope = scope.scoped(:conditions => ["active=?", @status]) if @status
+    scope = scope.scoped if @status
     @gitolite_public_keys = scope.all(:order => 'active DESC, created_at DESC')
 
     respond_to do |format|

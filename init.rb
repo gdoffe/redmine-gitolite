@@ -1,4 +1,5 @@
 require 'redmine'
+require_dependency 'project'
 require_dependency 'principal'
 require_dependency 'user'
 
@@ -33,4 +34,8 @@ end
 User.send(:has_many, :gitolite_public_keys, :dependent => :destroy)
 
 # initialize observer
-ActiveRecord::Base.observers = ActiveRecord::Base.observers << GitoliteObserver
+RedmineApp::Application.config.after_initialize do
+        if RedmineApp::Application.config.action_controller.perform_caching
+                ActiveRecord::Base.observers = ActiveRecord::Base.observers << GitoliteObserver
+        end
+end
