@@ -13,18 +13,22 @@
   Add yourself as a project developer: <%= link_to @project.name + " Settings", {:controller => 'projects', :action => 'settings'} %> -&gt; Members Tab -&gt; New Member
 </pre>
 
+<% 
+   repo_name = params[:repository_id] || @project.repository.identifier
+ -%>
+
 <h2>Repository Setup:</h2>
-<pre>  cd <%= @project.repository.identifier %>
+<pre>  cd <%= repo_name %>
   git init
   git add .
   git commit -m 'Initializing <%= @project %> repository'
-  git remote add origin <%= Setting.plugin_redmine_gitolite['developerBaseUrls'].gsub("%{name}", @project.repository.identifier) %>
+  git remote add origin <%= Setting.plugin_redmine_gitolite['developerBaseUrls'].gsub("%{name}", repo_name) %>
   git push origin master
 </pre>
 
 <h2>Existing Git Repo?</h2>
 <pre>  cd existing_git_repo
-  git remote add origin <%= Setting.plugin_redmine_gitolite['developerBaseUrls'].gsub("%{name}", @project.repository.identifier) %>
+  git remote add origin <%= Setting.plugin_redmine_gitolite['developerBaseUrls'].gsub("%{name}", repo_name) %>
   git push origin master
 </pre>    
   
