@@ -22,11 +22,11 @@ Includes Public Key management views (extracted from http://plan.io).
 
 * Setup:
   1. Install gitolite for user git. In home directory of user git
-     : git clone https://github.com/sitaramc/gitolite.git
-     : mkdir bin
-     : echo "PATH=$HOME/bin:$PATH" >> .bashrc
-     : gitolite/install -ln
-     : gitolite setup -pk redmine.pub
+     : $ git clone https://github.com/sitaramc/gitolite.git
+     : $ mkdir bin
+     : $ echo "PATH=$HOME/bin:$PATH" >> .bashrc
+     : $ gitolite/install -ln
+     : $ gitolite setup -pk redmine.pub
      redmine.pub must be the key generated for user running redmine so
      it will be possible for this user to clone repos locally (see
      next point)
