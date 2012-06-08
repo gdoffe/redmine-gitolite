@@ -34,8 +34,6 @@ end
 User.send(:has_many, :gitolite_public_keys, :dependent => :destroy)
 
 # initialize observer
-RedmineApp::Application.config.after_initialize do
-        if RedmineApp::Application.config.action_controller.perform_caching
-                ActiveRecord::Base.observers = ActiveRecord::Base.observers << GitoliteObserver
-        end
-end
+ActiveRecord::Base.observers << :gitolite_observer
+
+RedmineApp::Application.config.after_initialize {}
