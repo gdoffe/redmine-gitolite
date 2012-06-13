@@ -38,7 +38,7 @@ Includes Public Key management views (extracted from http://plan.io).
   3. Install Redmine and put this plugin into path_to_redmine/plugins
      directory and migrate database (plugins)
      : $ cd redmine/plugins
-     : $ git clone git://github.com/pibako/redmine-gitolite.git
+     : $ git clone git://github.com/pibako/redmine-gitolite.git redmine_gitolite
      : $ cd redmine-gitoline
      : $ git checkout -t origin/redmine2
      : $ cd ../../
