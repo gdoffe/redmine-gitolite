@@ -38,9 +38,9 @@ Includes Public Key management views (extracted from http://plan.io).
   3. Install Redmine and put this plugin into path_to_redmine/plugins
      directory and migrate database (plugins)
      : $ cd redmine/plugins
-     : $ git clone git://github.com/pibako/redmine-gitolite.git
+     : $ git clone git://github.com/pibako/redmine-gitolite.git redmine_gitolite
      : $ cd redmine-gitoline
-     : $ git checkout -t redmine2
+     : $ git checkout -t origin/redmine2
      : $ cd ../../
      : $ RAILS_ENV=production rake redmine:plugins:migrate
 
@@ -56,7 +56,7 @@ Includes Public Key management views (extracted from http://plan.io).
      : $ sudo su - gitolite #login on gitolite user
      : $ cd /tmp
      : $ git clone git://github.com/pibako/redmine-gitolite.git
-     : $ git checkout -t redmine2
+     : $ git checkout -t origin/redmine2
      : $ cp /tmp/redmine-gitolite/contrib/hooks/post-receive-redmine_gitolite ~/.gitolite/hooks/common/post-receive
      : $ chmod +x .gitolite/hooks/common/post-receive
      : $ emacs .gitolite/hooks/common/post-receive
