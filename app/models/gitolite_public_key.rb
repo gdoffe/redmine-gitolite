@@ -7,8 +7,8 @@ class GitolitePublicKey < ActiveRecord::Base
   validates_uniqueness_of :identifier, :score => :user_id
   validates_presence_of :title, :key, :identifier
   
-  named_scope :active, {:conditions => {:active => GitolitePublicKey::STATUS_ACTIVE}}
-  named_scope :inactive, {:conditions => {:active => GitolitePublicKey::STATUS_LOCKED}}
+  scope :active, {:conditions => {:active => GitolitePublicKey::STATUS_ACTIVE}}
+  scope :inactive, {:conditions => {:active => GitolitePublicKey::STATUS_LOCKED}}
   
   validate :has_not_been_changed
   
@@ -23,9 +23,16 @@ class GitolitePublicKey < ActiveRecord::Base
   end
   
   def set_identifier
-    self.identifier ||= "#{self.user.login.underscore}@#{self.title.underscore}".gsub(/[^0-9a-zA-Z-_]/,'_')
+    self.identifier ||= "#{self.user.login.underscore}@#{self.title.underscore}".gsub(/[^0-9a-zA-Z\-\_]/,'_')
   end
     
   def to_s ; title ; end
   
+  def location
+    self.title.underscore.gsub(/[^0-9a-zA-Z\-\_]/,'_')
+  end
+  
+  def owner
+    self.user.login.underscore.gsub(/[^0-9a-zA-Z\-\_]/,'_')
+  end
 end

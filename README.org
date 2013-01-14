@@ -1,0 +1,92 @@
+* redmine-gitolite
+
+This version of redmine-gitolite was tested with Redmine 2.0.2
+only. It may work with other versions of 2.0 branch but will fail for
+sure with Redmine 1.x
+
+This is [[https://github.com/kahseng/redmine_gitolite_hook][Redmine Gitolite Hook]] combined with [[https://github.com/jhogendorn/redmine-gitolite][redmine-gitolite]] 
+
+A Redmine plugin which manages your gitolite configuration based on
+your projects and user memberships in Redmine.
+
+Provides Gitolite hook, for automaticaly pulling changes to local
+clone of repository. This plugin will create local clone and keep it
+up to date.
+
+Includes Public Key management views (extracted from http://plan.io).
+
+* Requirements:
+
+  1. Gitolite server
+  2. curl
+
+* Setup:
+  1. Install gitolite for user git. In home directory of user git
+     : $ git clone https://github.com/sitaramc/gitolite.git
+     : $ mkdir bin
+     : $ echo "PATH=$HOME/bin:$PATH" >> .bashrc
+     : $ gitolite/install -ln
+     : $ gitolite setup -pk redmine.pub
+     redmine.pub must be the key generated for user running redmine so
+     it will be possible for this user to clone repos locally (see
+     next point)
+
+  2. User running redmine (his key must be named named "redmine") must
+     have RW+ access to gitolite-admin (assuming that you have
+     gitolite installed).
+
+  3. Install Redmine and put this plugin into path_to_redmine/plugins
+     directory and migrate database (plugins)
+     : $ cd redmine/plugins
+     : $ git clone git://github.com/pibako/redmine-gitolite.git redmine_gitolite
+     : $ cd redmine-gitoline
+     : $ git checkout -t origin/redmine2
+     : $ cd ../../
+     : $ RAILS_ENV=production rake redmine:plugins:migrate
+
+  4. Make sure that redmine user has gitolite server in his
+     known_host list i.e. ssh to git@your_host and accept
+
+  5. Configure email and name of git user for your redmine account
+     : $ git config --global user.email "redmine@gitolite.org"
+     : $ git config --global user.name "Redmine Gitolite"
+
+  6. Add post-receive hook to common gitolite hooks (example in
+     contrib dir) and configure it (host, api key, etc, see sources)
+     : $ sudo su - gitolite #login on gitolite user
+     : $ cd /tmp
+     : $ git clone git://github.com/pibako/redmine-gitolite.git
+     : $ git checkout -t origin/redmine2
+     : $ cp /tmp/redmine-gitolite/contrib/hooks/post-receive-redmine_gitolite ~/.gitolite/hooks/common/post-receive
+     : $ chmod +x .gitolite/hooks/common/post-receive
+     : $ emacs .gitolite/hooks/common/post-receive
+
+     1. enable WS for repository management in
+        [Administration -> Settings -> Repositories]
+	
+     2. copy generated API key
+	
+     3. configure, in complex hook you can do this by git config options
+
+     4. edit .gitolite.rc
+	: add "hooks\.redmine_gitolite\..*" to the GIT_CONFIG_KEYS setting
+        : $ gitolite setup
+
+  7. Configure plugin in redmine settings [Adminitration -> Plugins ->
+     Redmine Gitolite]
+    
+     - Gitolite URL should be set to your gitolite-admin git repository
+
+     - Base path should point directory which will hold local copies
+       (must exist)
+
+     - Set developer and ro urls as in given examples
+
+     - %{name} will be replaced with your repository identifier
+
+* Pro Tips:
+  - You should manage your keys only from Redmine to avoid conflicts.
+  - Need new bare git repo? Create it via Redmine, disable other
+    features.
+  - This is most convenient way to manage keys by your user.
+

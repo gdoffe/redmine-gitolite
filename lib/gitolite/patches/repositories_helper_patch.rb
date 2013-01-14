@@ -7,14 +7,12 @@ module GitoliteRedmine
                        :branch_pattern, :label => l(:field_gitolite_repository_branch_pattern),
                        :size => 60, :required => false,
                        :disabled => false
-                         ) +
-                       '<br />' + l(:note_gitolite_repository_branch_pattern)) +
+                         ) + l(:note_gitolite_repository_branch_pattern)) +
     	content_tag('p', form.text_field(
                        :tag_pattern, :label => l(:field_gitolite_repository_tag_pattern),
                        :size => 60, :required => false,
                        :disabled => false
-                         ) +
-                       '<br />' + l(:note_gitolite_repository_tag_pattern))
+                         ) + l(:note_gitolite_repository_tag_pattern))
       end
       
       def self.included(base)

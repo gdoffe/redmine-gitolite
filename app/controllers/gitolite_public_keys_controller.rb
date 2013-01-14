@@ -13,9 +13,11 @@ class GitolitePublicKeysController < ApplicationController
     else
 	params[:status].to_i
     end
-    c = ARCondition.new(@status ? ["active=?", @status] : nil)
+    
+    scope = @user.gitolite_public_keys
+    scope = scope.scoped if @status
+    @gitolite_public_keys = scope.all(:order => 'active DESC, created_at DESC')
 
-    @gitolite_public_keys = @user.gitolite_public_keys.all(:order => 'active DESC, created_at DESC', :conditions => c.conditions)
     respond_to do |format|
       format.html # index.html.erb
       format.json  { render :json => @gitolite_public_keys }
@@ -27,11 +29,11 @@ class GitolitePublicKeysController < ApplicationController
 
   def update
     if params[:public_key][:active]
-      status = params[:public_key].delete :active
-      if status != "0"
-        @gitolite_public_key.active = 1
-      else
-        @gitolite_public_key.active = 0
+      status = params[:public_key].delete(:active).to_i
+      if status == GitolitePublicKey::STATUS_ACTIVE
+        @gitolite_public_key.active = true
+      elsif status == GitolitePublicKey::STATUS_LOCKED
+        @gitolite_public_key.active = false
       end
     end
 
