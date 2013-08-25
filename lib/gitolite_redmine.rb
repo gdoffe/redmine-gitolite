@@ -190,12 +190,6 @@ module GitoliteRedmine
       if reporter_users
         reporter = reporter_users.map{|usr| usr.login.underscore}.sort
         permissions["R"][""] += reporter unless reporter.empty?
-        if project.repository.branch_pattern and project.repository.branch_pattern != ""
-          permissions["RW"][project.repository.branch_pattern] += reporter unless reporter.empty?
-        end
-        if project.repository.tag_pattern and project.repository.tag_pattern != ""
-          permissions["RW"]["ref/tags/" + project.repository.tag_pattern] += reporter unless reporter.empty?
-        end
         permissions["RW+"]["personal/USER/"] += reporter unless reporter.empty?
       end
 
