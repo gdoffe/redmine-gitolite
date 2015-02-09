@@ -84,9 +84,9 @@ module GitoliteRedmine
       
         unless conf
           conf = Gitolite::Config::Repo.new(name)
-          conf.set_git_config("hooks.redmine_gitolite.projectid", proj_name)
           @repo.config.add_repo(conf)
         end
+        conf.set_git_config("hooks.redmine_gitolite.projectid." + proj_name, proj_name)
       
         conf.permissions = build_permissions(users, project)
       end
@@ -123,9 +123,7 @@ module GitoliteRedmine
 
       # Managers
       role = Role.find_by_name(l(:default_role_manager))
-      logger.debug { "********* Role : #{role}" }
       manager_users = project.users_by_role[role]
-      logger.debug { "********* Managers : #{manager_users}" }
       if manager_users
         manager_users = manager_users.select{ |user| user.allowed_to?( :commit_access, project ) }
       end
