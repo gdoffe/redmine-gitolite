@@ -21,7 +21,7 @@
 <pre>  cd <%= repo_name %>
   git init
   git add .
-  git commit -m 'Initializing <%= @project %> repository'
+  git commit -m 'Initializing <%= @project.repository.identifier %> repository'
   git remote add origin <%= Setting.plugin_redmine_gitolite['developerBaseUrls'].gsub("%{name}", repo_name) %>
   git push origin master
 </pre>
