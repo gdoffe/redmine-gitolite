@@ -58,7 +58,7 @@ class GitoliteHookController < ApplicationController
     project = find_project
     repository = project.repositories.select{|r| r.identifier == params[:repo_id]}.first
     raise TypeError, "Project '#{project.to_s}' ('#{project.identifier}') has no repository identified by #{params[:repo_id]}" if repository.nil?
-    raise TypeError, "Repository identified by #{params[:repo_id]} for project '#{project.to_s}' ('#{project.identifier}') is not a Git repository" unless repository.is_a?(Repository::Git)
+    raise TypeError, "Repository identified by #{params[:repo_id]} for project '#{project.to_s}' ('#{project.identifier}') is not a Git repository" unless repository.is_a?(Repository::Gitolite)
     return repository
   end
 

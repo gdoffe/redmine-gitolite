@@ -4,7 +4,7 @@ module GitoliteRedmine
     module RepositoriesControllerPatch
 
       def show_with_git_instructions
-        if @repository.is_a?(Repository::Git) and @repository.entries(@path, @rev).blank?
+        if @repository.is_a?(Repository::Gitolite) and @repository.entries(@path, @rev).blank?
           render :action => 'git_instructions' 
         else
           show_without_git_instructions
@@ -41,7 +41,7 @@ module GitoliteRedmine
       def git_parametrize
         params[:repository] ||= {}
         params[:repository][:extra_report_last_commit] = '1'
-        params[:repository][:url] = File.join(Setting.plugin_redmine_gitolite['basePath'],params[:repository][:identifier]+".git") if  params[:repository_scm] == 'Git'
+        params[:repository][:url] = File.join(Setting.plugin_redmine_gitolite['basePath'],params[:repository][:identifier]+".git") if  params[:repository_scm] == 'Gitolite'
       end
 
     end

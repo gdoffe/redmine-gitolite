@@ -30,10 +30,10 @@ module GitoliteRedmine
       recursion_check do
         projects = (projects.is_a?(Array) ? projects : [projects])
 
-        if projects.detect{|p| p.repositories.detect{|r| r.is_a?(Repository::Git)}} && lock
+        if projects.detect{|p| p.repositories.detect{|r| r.is_a?(Repository::Gitolite)}} && lock
           clone(Setting.plugin_redmine_gitolite['gitoliteUrl'], local_dir)
           
-          projects.select{|p| p.repository.is_a?(Repository::Git)}.each do |project|
+          projects.select{|p| p.repository.is_a?(Repository::Gitolite)}.each do |project|
             logger.debug "[Gitolite] Handling #{project.inspect}"
             handle_project project
           end
@@ -78,7 +78,7 @@ module GitoliteRedmine
       users = project.member_principals.map(&:user).compact.uniq
       proj_name = project.identifier.to_s
       
-      project.repositories.select{|r| r.is_a?(Repository::Git)}.each do |repository|
+      project.repositories.select{|r| r.is_a?(Repository::Gitolite)}.each do |repository|
         name = repository.identifier.to_s
         conf = @repo.config.repos[name]
       
