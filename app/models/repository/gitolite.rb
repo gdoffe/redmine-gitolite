@@ -1,6 +1,9 @@
 require 'redmine/scm/adapters/gitolite_adapter.rb'
 
 class Repository::Gitolite < Repository::Git
+
+  validates_uniqueness_of :identifier,  :if => Proc.new { |r| r.is_default? || r.set_as_default? }, :allow_blank => true
+
   safe_attributes 'branch_pattern',
     'tag_pattern'
 

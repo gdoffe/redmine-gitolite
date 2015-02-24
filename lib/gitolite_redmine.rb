@@ -45,6 +45,26 @@ module GitoliteRedmine
         end
       end
     end
+
+    def destroy_projects(projects)
+      recursion_check do
+        projects = (projects.is_a?(Array) ? projects : [projects])
+
+        if projects.detect{|p| p.repositories.detect{|r| r.is_a?(Repository::Gitolite)}} && lock
+          clone(Setting.plugin_redmine_gitolite['gitoliteUrl'], local_dir)
+
+          projects.select{|p| p.repository.is_a?(Repository::Gitolite)}.each do |project|
+            logger.debug "[Gitolite] Handling #{project.inspect}"
+            destroy_project project
+          end
+
+          @repo.save
+          @repo.apply
+          #FileUtils.rm_rf local_dir
+          unlock
+        end
+      end
+    end
     
     private
     
@@ -78,17 +98,33 @@ module GitoliteRedmine
       users = project.member_principals.map(&:user).compact.uniq
       proj_name = project.identifier.to_s
       
-      project.repositories.select{|r| r.is_a?(Repository::Gitolite)}.each do |repository|
+      project.repositories.select{|r| r.is_a?(Repository::Gitolite) and r.is_default?}.each do |repository|
         name = repository.identifier.to_s
         conf = @repo.config.repos[name]
-      
+
         unless conf
           conf = Gitolite::Config::Repo.new(name)
           @repo.config.add_repo(conf)
         end
         conf.set_git_config("hooks.redmine_gitolite.projectid." + proj_name, proj_name)
-      
+
         conf.permissions = build_permissions(users, project)
+      end
+    end
+
+    def destroy_project(project)
+      users = project.member_principals.map(&:user).compact.uniq
+      proj_name = project.identifier.to_s
+
+      project.repositories.select{|r| r.is_a?(Repository::Gitolite) and r.is_default?}.each do |repository|
+        name = repository.identifier.to_s
+        conf = @repo.config.repos[name]
+
+        conf.unset_git_config("hooks.redmine_gitolite.projectid." + proj_name) unless !conf
+
+        # Only gitolite admins will now have full access to that repository
+        conf.permissions = @repo.config.get_repo("gitolite-admin").permissions
+        #Project.all.detect{|p| p.repositories.detect{|r| r.is_a?(Repository::Gitolite) and r.identifier.to_s == name}}
       end
     end
     
