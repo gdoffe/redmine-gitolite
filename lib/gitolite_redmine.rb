@@ -118,34 +118,14 @@ module GitoliteRedmine
     end
     
     def build_permissions(users, project)
-      read_users = users.select{|user| user.allowed_to?(:view_changesets, project) && !user.allowed_to?(:commit_access, project) }
-      read = read_users.map{|usr| usr.login.underscore.gsub(/[^0-9a-zA-Z\-\_]/,'_')}.sort
-
-      # Managers
-      role = Role.find_by_name(l(:default_role_manager))
-      manager_users = project.users_by_role[role]
-      if manager_users
-        manager_users = manager_users.select{ |user| user.allowed_to?( :commit_access, project ) }
-      end
-      
-      # Developers
-      role = Role.find_by_name(l(:default_role_developer))
-      developer_users = project.users_by_role[role]
-      if developer_users
-        developer_users = developer_users.select{ |user| user.allowed_to?( :commit_access, project ) }
-      end
-      
-      # Reporters
-      role = Role.find_by_name(l(:default_role_reporter))
-      reporter_users = project.users_by_role[role]
-      if reporter_users
-        reporter_users = reporter_users.select{ |user| user.allowed_to?( :view_changesets, project ) }
-      end
-      
+      read = []
       read << "redmine"
-      read << "daemon" if User.anonymous.allowed_to?(:view_changesets, project)
-      read << "gitweb" if User.anonymous.allowed_to?(:view_gitweb, project)
-      
+      #read << "daemon" if User.anonymous.allowed_to?(:view_changesets, project)
+      #read << "gitweb" if User.anonymous.allowed_to?(:view_gitweb, project)
+      full_access_users     = users.select{ |user| user.allowed_to?( :manage_repository, project ) }
+      pattern_access_users  = users.select{ |user| user.allowed_to?( :commit_access, project ) } - full_access_users
+      read_only_users       = users.select{ |user| user.allowed_to?( :browse_repository, project ) } - pattern_access_users
+
       permissions = {}
 
       permissions["R"] = {}
@@ -167,28 +147,28 @@ module GitoliteRedmine
       
       permissions["R"][""] += read unless read.empty?
       
-      if manager_users
-        manager = manager_users.map{|usr| usr.login.underscore}.sort
-        permissions["RW"][""] += manager unless manager.empty?
-        permissions["RW+"]["personal/USER/"] += manager unless manager.empty?
+      if full_access_users
+        user = full_access_users.map{|usr| usr.login.underscore}.sort
+        permissions["RW"][""] += user unless user.empty?
+        permissions["RW+"]["personal/USER/"] += user unless user.empty?
       end
       
-      if developer_users
-        developer = developer_users.map{|usr| usr.login.underscore}.sort
-        permissions["R"][""] += developer unless developer.empty?
+      if pattern_access_users
+        user = pattern_access_users.map{|usr| usr.login.underscore}.sort
+        permissions["R"][""] += user unless user.empty?
         if project.repository.branch_pattern and project.repository.branch_pattern != ""
-          permissions["RW"][project.repository.branch_pattern] += developer unless developer.empty?
+          permissions["RW"][project.repository.branch_pattern] += user unless user.empty?
         end
         if project.repository.tag_pattern and project.repository.tag_pattern != ""
-          permissions["RW"]["ref/tags/" + project.repository.tag_pattern] += developer unless developer.empty?
+          permissions["RW"]["ref/tags/" + project.repository.tag_pattern] += user unless user.empty?
         end
-        permissions["RW+"]["personal/USER/"] += developer unless developer.empty?
+        permissions["RW+"]["personal/USER/"] += user unless user.empty?
       end
       
-      if reporter_users
-        reporter = reporter_users.map{|usr| usr.login.underscore}.sort
-        permissions["R"][""] += reporter unless reporter.empty?
-        permissions["RW+"]["personal/USER/"] += reporter unless reporter.empty?
+      if read_only_users
+        user = read_only_users.map{|usr| usr.login.underscore}.sort
+        permissions["R"][""] += user unless user.empty?
+        permissions["RW+"]["personal/USER/"] += user unless user.empty?
       end
 
       if project.repository.branch_pattern and project.repository.branch_pattern != ""
@@ -197,12 +177,21 @@ module GitoliteRedmine
       if project.repository.tag_pattern and project.repository.tag_pattern != ""
         if permissions["RW"]["ref/tags/" + project.repository.tag_pattern].empty?; permissions["RW"].delete("ref/tags/" + project.repository.tag_pattern); end
       end
-      
-      
+
+      permissions["RW"][""] -= permissions["RW+"][""]
+      permissions["R"][""]  -= permissions["RW"][""]
+      permissions["R"][""]  -= permissions["RW+"][""]
+
+      permissions["RW+"]["personal/USER/"] = permissions["RW+"]["personal/USER/"].uniq
+
       if permissions["R"][""].empty?; permissions["R"].delete(""); end
       if permissions["RW"][""].empty?; permissions["RW"].delete(""); end
       if permissions["RW+"][""].empty?; permissions["RW+"].delete(""); end
       if permissions["RW+"]["personal/USER/"].empty?; permissions["RW+"].delete("personal/USER/"); end
+
+      if permissions["R"].empty?; permissions.delete("R"); end
+      if permissions["RW"].empty?; permissions.delete("RW"); end
+      if permissions["RW+"].empty?; permissions.delete("RW+"); end
 
       [permissions]
     end

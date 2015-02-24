@@ -1,6 +1,9 @@
 require 'redmine/scm/adapters/gitolite_adapter.rb'
 
 class Repository::Gitolite < Repository::Git
+  safe_attributes 'branch_pattern',
+    'tag_pattern'
+
   def self.scm_adapter_class
     Redmine::Scm::Adapters::GitoliteAdapter
   end
