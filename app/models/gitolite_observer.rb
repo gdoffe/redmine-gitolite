@@ -20,7 +20,8 @@ class GitoliteObserver < ActiveRecord::Observer
   def destroy_repositories(object)
     gr = GitoliteRedmine::AdminHandler.new
     case object
-      when Repository then gr.destroy_projects(object.project)
+      when Project then gr.destroy_projects(object)
+      when Repository then gr.destroy_repositories(object)
       when User then (gr.update_projects(object.projects) && gr.update_user(object)) unless is_login_save?(object)
       when GitolitePublicKey then gr.update_user(object.user)
       when Member then gr.update_projects(object.project)
