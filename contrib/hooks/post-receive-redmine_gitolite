@@ -24,10 +24,7 @@ if [ -z "$REDMINE_SERVER" ]; then
     REDMINE_SERVER=$DEFAULT_REDMINE_SERVER
 fi
 
-REDMINE_PROJECT_ID=$(git config hooks.redmine_gitolite.projectid 2>/dev/null)
-if [ -z "$REDMINE_PROJECT_ID" ]; then
-    REDMINE_PROJECT_ID=$DEFAULT_REDMINE_PROJECT_ID
-fi
+REDMINE_PROJECT_IDS=$(git config redmineGitolite.projectId 2>/dev/null)
 
 REDMINE_REPO_ID=$(git config hooks.redmine_gitolite.repoid 2>/dev/null)
 if [ -z "$REDMINE_REPO_ID" ]; then
@@ -56,10 +53,14 @@ echo
 while read old new refname; do
     echo "Hitting the Redmine Gitolite hook for $old $new $refname"
     echo -n "Response: "
-    curl $CURL_IGNORE_SECURITY -S -s -d "oldrev=$old&newrev=$new&refname=$refname&user=$GL_USER" "$REDMINE_SERVER/$HOOK_URL?project_id=$REDMINE_PROJECT_ID&repo_id=$REDMINE_REPO_ID"
-    echo ""
-    echo ""
-    echo "Hitting the Redmine fetch changesets URL"
-    curl -S -s $CURL_IGNORE_SECURITY "$REDMINE_SERVER/$FETCH_URL?id=$REDMINE_PROJECT_ID&key=$KEY"
-    echo ""
+    for REDMINE_PROJECT_ID in $REDMINE_PROJECT_IDS; do
+        touch /tmp/${REDMINE_PROJECT_ID}
+        echo "$REDMINE_SERVER/$HOOK_URL?project_id=$REDMINE_PROJECT_ID&repo_id=$REDMINE_REPO_ID"
+        curl $CURL_IGNORE_SECURITY -S -s -d "oldrev=$old&newrev=$new&refname=$refname&user=$GL_USER" "$REDMINE_SERVER/$HOOK_URL?project_id=$REDMINE_PROJECT_ID&repo_id=$REDMINE_REPO_ID"
+        echo ""
+        echo ""
+        echo "Hitting the Redmine fetch changesets URL"
+        curl -S -s $CURL_IGNORE_SECURITY "$REDMINE_SERVER/$FETCH_URL?id=$REDMINE_PROJECT_ID&key=$KEY"
+        echo ""
+    done
 done
