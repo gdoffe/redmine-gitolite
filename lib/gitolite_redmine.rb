@@ -33,7 +33,7 @@ module GitoliteRedmine
         if projects.detect{|p| p.repositories.detect{|r| r.is_a?(Repository::Gitolite)}} && lock
           clone(Setting.plugin_redmine_gitolite['gitoliteUrl'], local_dir)
           
-          projects.select{|p| p.repository.is_a?(Repository::Gitolite)}.each do |project|
+          projects.select{|p| p.repositories.detect{|r| r.is_a?(Repository::Gitolite)}}.each do |project|
             logger.debug "[Gitolite] Handling #{project.inspect}"
             handle_project project
           end
@@ -121,12 +121,18 @@ module GitoliteRedmine
       project.repositories.select{|r| r.is_a?(Repository::Gitolite)}.each do |repository|
         name = repository.identifier.to_s
         conf = @repo.config.repos[name]
+        proj_ids = []
 
         unless conf
           conf = Gitolite::Config::Repo.new(name)
           @repo.config.add_repo(conf)
         end
-        conf.set_git_config("hooks.redmine_gitolite.projectid." + proj_name, proj_name)
+
+        proj_ids = conf.config["redmineGitolite.projectId"].split(' ') unless conf.config["redmineGitolite.projectId"].nil?
+        if proj_ids.index(proj_name).nil?
+          proj_ids.append(proj_name)
+        end
+        conf.set_git_config("redmineGitolite.projectId", proj_ids.join(' '))
 
         if repository.is_default?
           conf.permissions = build_permissions(users, project)
@@ -147,8 +153,13 @@ module GitoliteRedmine
       name = repository.identifier.to_s
       conf = @repo.config.repos[name]
       proj_name = repository.project.identifier.to_s
+      proj_ids = []
 
-      conf.unset_git_config("hooks.redmine_gitolite.projectid." + proj_name) unless !conf
+      proj_ids = conf.config["redmineGitolite.projectId"].split(' ') unless conf.config["redmineGitolite.projectId"].nil? 
+      if !proj_ids.index(proj_name).nil?
+        proj_ids.delete(proj_name)
+      end
+      conf.set_git_config("redmineGitolite.projectId", proj_ids.join(' '))
 
       if repository.is_default?
         # Only gitolite admins will now have full access to that repository
