@@ -18,8 +18,7 @@ module GitoliteRedmine
           add_active_keys(user.gitolite_public_keys.active)
           remove_inactive_keys(user.gitolite_public_keys.inactive)
           
-          @repo.save
-          @repo.apply
+          @repo.save_and_apply
           FileUtils.rm_rf local_dir
           unlock
         end
@@ -38,8 +37,7 @@ module GitoliteRedmine
             handle_project project
           end
 
-          @repo.save
-          @repo.apply
+          @repo.save_and_apply
           #FileUtils.rm_rf local_dir
           unlock
         end
@@ -58,8 +56,7 @@ module GitoliteRedmine
             destroy_project project
           end
 
-          @repo.save
-          @repo.apply
+          @repo.save_and_apply
           FileUtils.rm_rf local_dir
           unlock
         end
@@ -78,8 +75,7 @@ module GitoliteRedmine
             destroy_repository repository
           end
 
-          @repo.save
-          @repo.apply
+          @repo.save_and_apply
           FileUtils.rm_rf local_dir
           unlock
         end
@@ -128,11 +124,13 @@ module GitoliteRedmine
           @repo.config.add_repo(conf)
         end
 
-        proj_ids = conf.config["redmineGitolite.projectId"].split(' ') unless conf.config["redmineGitolite.projectId"].nil?
+        proj_ids = conf.config["hooks.redmine_gitolite.project_id"].split(' ') unless conf.config["hooks.redmine_gitolite.project_id"].nil?
         if proj_ids.index(proj_name).nil?
           proj_ids.append(proj_name)
         end
-        conf.set_git_config("redmineGitolite.projectId", proj_ids.join(' '))
+        conf.set_git_config("hooks.redmine_gitolite.project_id", proj_ids.join(' '))
+
+        conf.set_git_config("hooks.redmine_gitolite.server", Setting.protocol + '://' + Setting.host_name.to_s)
 
         if repository.is_default?
           conf.permissions = build_permissions(users, project)
@@ -155,11 +153,13 @@ module GitoliteRedmine
       proj_name = repository.project.identifier.to_s
       proj_ids = []
 
-      proj_ids = conf.config["redmineGitolite.projectId"].split(' ') unless conf.config["redmineGitolite.projectId"].nil? 
+      proj_ids = conf.config["hooks.redmine_gitolite.project_id"].split(' ') unless conf.config["hooks.redmine_gitolite.project_id"].nil? 
       if !proj_ids.index(proj_name).nil?
         proj_ids.delete(proj_name)
       end
-      conf.set_git_config("redmineGitolite.projectId", proj_ids.join(' '))
+      conf.set_git_config("hooks.redmine_gitolite.project_id", proj_ids.join(' '))
+
+      conf.set_git_config("hooks.redmine_gitolite.server", Setting.protocol + '://' + Setting.host_name.to_s)
 
       if repository.is_default?
         # Only gitolite admins will now have full access to that repository
