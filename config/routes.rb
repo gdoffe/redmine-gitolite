@@ -12,5 +12,4 @@ scope "my" do
   resources :public_keys, :controller => 'gitolite_public_keys'
 end
 
-match "gitolite_hook" => "gitolite_hook#index"
-
+get "gitolite_hook" => "gitolite_hook#index"

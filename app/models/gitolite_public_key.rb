@@ -7,13 +7,13 @@ class GitolitePublicKey < ActiveRecord::Base
   validates_uniqueness_of :identifier, :score => :user_id
   validates_presence_of :title, :key, :identifier
   
-  scope :active, {:conditions => {:active => GitolitePublicKey::STATUS_ACTIVE}}
-  scope :inactive, {:conditions => {:active => GitolitePublicKey::STATUS_LOCKED}}
+  scope :active, -> {where(:active => GitolitePublicKey::STATUS_ACTIVE)}
+  scope :inactive, -> {where(:active => GitolitePublicKey::STATUS_LOCKED)}
   
   validate :has_not_been_changed
   
   before_validation :set_identifier
-  
+
   def has_not_been_changed
     unless new_record?
       %w(identifier key user_id).each do |attribute|

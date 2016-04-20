@@ -15,8 +15,8 @@ class GitolitePublicKeysController < ApplicationController
     end
     
     scope = @user.gitolite_public_keys
-    scope = scope.scoped if @status
-    @gitolite_public_keys = scope.all(:order => 'active DESC, created_at DESC')
+    scope = scope.all if @status
+    @gitolite_public_keys = scope
 
     respond_to do |format|
       format.html # index.html.erb
@@ -37,7 +37,7 @@ class GitolitePublicKeysController < ApplicationController
       end
     end
 
-    if @gitolite_public_key.update_attributes(params[:public_key])
+    if @gitolite_public_key.update_attributes(params[:public_key].permit(:active))
       flash[:notice] = l(:notice_public_key_updated)
       redirect_to url_for(:action => 'index', :status => session[:gitolite_public_key_filter_status])
     else
@@ -46,11 +46,14 @@ class GitolitePublicKeysController < ApplicationController
   end
   
   def new
-    @gitolite_public_key = GitolitePublicKey.new(:user => @user)
+    key_params = ActionController::Parameters.new(user: @user)
+    key_params.permit!
+    @gitolite_public_key = GitolitePublicKey.new(key_params)
   end
   
   def create
-    @gitolite_public_key = GitolitePublicKey.new(params[:public_key].merge(:user => @user))
+    tmp_params = params.require(:public_key).permit(:title,:key,:active).merge(:user => @user)
+    @gitolite_public_key = GitolitePublicKey.new(tmp_params.permit!)
     if @gitolite_public_key.save
       flash[:notice] = l(:notice_public_key_added)
       redirect_to url_for(:action => 'index', :status => session[:gitolite_public_key_filter_status])
@@ -65,7 +68,7 @@ class GitolitePublicKeysController < ApplicationController
       format.json { render :json => @gitolite_public_key }
     end
   end
-  
+
   protected
   
   def set_user_variable
