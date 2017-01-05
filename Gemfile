@@ -1,4 +1,4 @@
 gem "net-ssh"
-gem "gitolite"
+gem "gitolite-rugged"
 gem "lockfile"
 gem "rails-observers"
