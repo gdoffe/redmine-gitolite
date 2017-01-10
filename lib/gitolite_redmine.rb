@@ -38,7 +38,7 @@ module GitoliteRedmine
           end
 
           @repo.save_and_apply
-          #FileUtils.rm_rf local_dir
+          FileUtils.rm_rf local_dir
           unlock
         end
       end
