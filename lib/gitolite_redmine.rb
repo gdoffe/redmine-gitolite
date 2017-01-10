@@ -12,7 +12,7 @@ module GitoliteRedmine
     def update_user(user)
       recursion_check do 
         if lock
-          clone(Setting.plugin_redmine_gitolite['gitoliteUrl'], local_dir)
+          clone_gitolite_admin(local_dir)
           
           logger.debug "[Gitolite] Handling #{user.inspect}"
           add_active_keys(user.gitolite_public_keys.active)
@@ -30,7 +30,7 @@ module GitoliteRedmine
         projects = (projects.is_a?(Array) ? projects : [projects])
 
         if projects.detect{|p| p.repositories.detect{|r| r.is_a?(Repository::Gitolite)}} && lock
-          clone(Setting.plugin_redmine_gitolite['gitoliteUrl'], local_dir)
+          clone_gitolite_admin(local_dir)
           
           projects.select{|p| p.repositories.detect{|r| r.is_a?(Repository::Gitolite)}}.each do |project|
             logger.debug "[Gitolite] Handling #{project.inspect}"
@@ -49,7 +49,7 @@ module GitoliteRedmine
         projects = (projects.is_a?(Array) ? projects : [projects])
 
         if projects.detect{|p| p.repositories.detect{|r| r.is_a?(Repository::Gitolite)}} && lock
-          clone(Setting.plugin_redmine_gitolite['gitoliteUrl'], local_dir)
+          clone_gitolite_admin(local_dir)
 
           projects.select{|p| p.repository.is_a?(Repository::Gitolite)}.each do |project|
             logger.debug "[Gitolite] Handling #{project.inspect}"
@@ -68,7 +68,7 @@ module GitoliteRedmine
         repositories = (repositories.is_a?(Array) ? repositories : [repositories])
 
         if repositories.detect{|r| r.is_a?(Repository::Gitolite)} && lock
-          clone(Setting.plugin_redmine_gitolite['gitoliteUrl'], local_dir)
+          clone_gitolite_admin(local_dir)
 
           repositories.select{|r| r.is_a?(Repository::Gitolite)}.each do |repository|
             logger.debug "[Gitolite] Handling #{repository.inspect}"
@@ -88,7 +88,7 @@ module GitoliteRedmine
       @local_dir ||= File.join(Rails.root,"tmp","redmine_gitolite_#{Time.now.to_i}")
     end
     
-    def clone(origin, local_dir)
+    def clone_gitolite_admin(local_dir)
       FileUtils.mkdir_p local_dir
       @repo = Gitolite::GitoliteAdmin.new(local_dir, {  :git_user => Setting.plugin_redmine_gitolite['gitoliteUser'],
                                                         :host => Setting.plugin_redmine_gitolite['gitoliteHost'],
