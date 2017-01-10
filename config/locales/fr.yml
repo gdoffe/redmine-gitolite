@@ -1,7 +1,10 @@
 'fr':
   label_public_keys: Clés publiques
   label_public_key_new: Nouvelle clé publique
-  label_gitolite_url: URL gitolite
+  label_gitolite_host: Adresse de l'hôte Gitolite
+  label_gitolite_user: Utilisateur Gitolite
+  label_gitolite_publickey: Chemin de la clé publique
+  label_gitolite_privatekey: Chemin de la clé privée
   label_gitolite_identity_file: Gitolite identity file
   label_base_path: Chemin de base
   label_developer_base_urls: URL(s) de base pour les développeurs

@@ -1,7 +1,8 @@
 'pl':
   label_public_keys: Public keys
   label_public_key_new: New public key
-  label_gitolite_url: Gitolite URL
+  label_gitolite_host: Gitolite host
+  label_gitolite_user: Gitolite user
   label_gitolite_identity_file: Gitolite identity file
   label_base_path: Base path
   label_developer_base_urls: Developer base URL(s)

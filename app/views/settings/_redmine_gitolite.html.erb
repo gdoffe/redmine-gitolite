@@ -1,7 +1,22 @@
 <div class="tabular settings">
 	<p>
-		<label><%= l(:label_gitolite_url)%></label> 
-		<%= text_field_tag("settings[gitoliteUrl]", @settings['gitoliteUrl'], :size => 60) %>
+		<label><%= l(:label_gitolite_host)%></label>
+		<%= text_field_tag("settings[gitoliteHost]", @settings['gitoliteHost'], :size => 60) %>
+		<br />
+	</p>
+	<p>
+		<label><%= l(:label_gitolite_user)%></label>
+		<%= text_field_tag("settings[gitoliteUser]", @settings['gitoliteUser'], :size => 60) %>
+		<br />
+	</p>
+	<p>
+		<label><%= l(:label_gitolite_publickey)%></label>
+		<%= text_field_tag("settings[gitolitePublicKey]", @settings['gitolitePublicKey'], :size => 60) %>
+		<br />
+	</p>
+	<p>
+		<label><%= l(:label_gitolite_privatekey)%></label>
+		<%= text_field_tag("settings[gitolitePrivateKey]", @settings['gitolitePrivateKey'], :size => 60) %>
 		<br />
 	</p>
 	<p>

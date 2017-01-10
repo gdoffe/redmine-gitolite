@@ -90,9 +90,11 @@ module GitoliteRedmine
     
     def clone(origin, local_dir)
       FileUtils.mkdir_p local_dir
-      result = `git clone #{origin} #{local_dir}`
-      logger.debug result
-      @repo = Gitolite::GitoliteAdmin.new local_dir
+      @repo = Gitolite::GitoliteAdmin.new(local_dir, {  :git_user => Setting.plugin_redmine_gitolite['gitoliteUser'],
+                                                        :host => Setting.plugin_redmine_gitolite['gitoliteHost'],
+                                                        :public_key => File.expand_path(Setting.plugin_redmine_gitolite['gitolitePublicKey']),
+                                                        :private_key => File.expand_path(Setting.plugin_redmine_gitolite['gitolitePrivateKey'])
+                                                     })
     end
     
     def lock
