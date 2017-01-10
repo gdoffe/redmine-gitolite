@@ -132,8 +132,6 @@ module GitoliteRedmine
         end
         conf.set_git_config("hooks.redmine_gitolite.projectid", proj_ids.join(' '))
 
-        conf.set_git_config("hooks.redmine_gitolite.server", Setting.protocol + '://' + Setting.host_name.to_s)
-
         if repository.is_default?
           conf.permissions = build_permissions(users, project)
         end
@@ -160,8 +158,6 @@ module GitoliteRedmine
         proj_ids.delete(proj_name)
       end
       conf.set_git_config("hooks.redmine_gitolite.projectid", proj_ids.join(' '))
-
-      conf.set_git_config("hooks.redmine_gitolite.server", Setting.protocol + '://' + Setting.host_name.to_s)
 
       if repository.is_default?
         # Only gitolite admins will now have full access to that repository
