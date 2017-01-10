@@ -126,11 +126,11 @@ module GitoliteRedmine
           @repo.config.add_repo(conf)
         end
 
-        proj_ids = conf.config["hooks.redmine_gitolite.project_id"].split(' ') unless conf.config["hooks.redmine_gitolite.project_id"].nil?
+        proj_ids = conf.config["hooks.redmine_gitolite.projectid"].split(' ') unless conf.config["hooks.redmine_gitolite.projectid"].nil?
         if proj_ids.index(proj_name).nil?
           proj_ids.append(proj_name)
         end
-        conf.set_git_config("hooks.redmine_gitolite.project_id", proj_ids.join(' '))
+        conf.set_git_config("hooks.redmine_gitolite.projectid", proj_ids.join(' '))
 
         conf.set_git_config("hooks.redmine_gitolite.server", Setting.protocol + '://' + Setting.host_name.to_s)
 
@@ -155,11 +155,11 @@ module GitoliteRedmine
       proj_name = repository.project.identifier.to_s
       proj_ids = []
 
-      proj_ids = conf.config["hooks.redmine_gitolite.project_id"].split(' ') unless conf.config["hooks.redmine_gitolite.project_id"].nil? 
+      proj_ids = conf.config["hooks.redmine_gitolite.projectid"].split(' ') unless conf.config["hooks.redmine_gitolite.projectid"].nil? 
       if !proj_ids.index(proj_name).nil?
         proj_ids.delete(proj_name)
       end
-      conf.set_git_config("hooks.redmine_gitolite.project_id", proj_ids.join(' '))
+      conf.set_git_config("hooks.redmine_gitolite.projectid", proj_ids.join(' '))
 
       conf.set_git_config("hooks.redmine_gitolite.server", Setting.protocol + '://' + Setting.host_name.to_s)
 

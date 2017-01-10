@@ -24,7 +24,7 @@ if [ -z "$REDMINE_SERVER" ]; then
     REDMINE_SERVER=$DEFAULT_REDMINE_SERVER
 fi
 
-REDMINE_PROJECT_IDS=$(git config hooks.redmine_gitolite.project_id 2>/dev/null)
+REDMINE_PROJECT_IDS=$(git config hooks.redmine_gitolite.projectid 2>/dev/null)
 
 REDMINE_REPO_ID=$(git config hooks.redmine_gitolite.repoid 2>/dev/null)
 if [ -z "$REDMINE_REPO_ID" ]; then
