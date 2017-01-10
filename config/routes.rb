@@ -12,4 +12,4 @@ scope "my" do
   resources :public_keys, :controller => 'gitolite_public_keys'
 end
 
-get "gitolite_hook" => "gitolite_hook#index"
+post "gitolite_hook", :to => "gitolite_hook#index"
